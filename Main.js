@@ -1,12 +1,12 @@
-const renderAll = () => {
+(renderAll = () => {
 
-    let todoKey = +localStorage.key(localStorage.length - 1);
     let header = document.createElement('div');
     let deleteTodoButon = document.createElement('button');
-    let toDo = document.createElement('span');
-    let todoContainer = document.createElement('div');
 
-    function renderHeader() {
+    let todoObj = {};
+
+    (renderHeader = () => {
+
         document.body.appendChild(header);
 
         let inputToDo = document.createElement('input');
@@ -20,51 +20,77 @@ const renderAll = () => {
             createToDos(inputToDo.value);
             inputToDo.value = '';
         });
-    }
-    renderHeader();
+    })();
 
     let mainContainer = document.createElement('div');
     document.body.appendChild(mainContainer);
 
-    function createToDos(text) {
+    let todoKey = +localStorage.key(localStorage.length - 1);
 
+    let createToDos = (text) => {
+
+        let toDo = document.createElement('span');
+        let todoContainer = document.createElement('div');
+        let checkbox = document.createElement('input');
+        checkbox.setAttribute('type', 'checkbox');
+        todoKey += 1;
+        todoContainer.appendChild(checkbox);
+        checkbox.id = todoKey;
+
+        todoObj.value = text;
+        todoObj.id = todoKey;
+        todoObj.checked = false;
         toDo.innerHTML = text;
 
-            mainContainer.appendChild(todoContainer);
-            todoContainer.appendChild(toDo);
+        mainContainer.appendChild(todoContainer);
+        todoContainer.appendChild(toDo);
 
-            todoKey += 1;
-            todoContainer.id = todoKey;
-            localStorage.setItem(todoKey, toDo.innerHTML);
-            toDo.id = todoKey;
-
-            todoContainer.appendChild(deleteTodoButon);
-            deleteTodoButon.innerHTML = 'Delete';
-            deleteTodoButon.name = 'buttonDelete';
-
+        todoContainer.id = todoKey;
+        localStorage.setItem(todoKey, JSON.stringify(todoObj));
+        toDo.id = todoKey;
+        let deleteTodoButon = document.createElement('button');
+        todoContainer.appendChild(deleteTodoButon);
+        deleteTodoButon.innerHTML = 'Delete';
+        deleteTodoButon.name = 'buttonDelete';
+        return todoContainer;
     }
 
+    let changeCheckboxValue = (id) => {
+        let parsedJSON = JSON.parse(localStorage.getItem(id));
+        if (parsedJSON.checked === true){
+            parsedJSON.checked = false;
+        }
+        else {
+            parsedJSON.checked = true;
+        }
+        localStorage.setItem(id, JSON.stringify(parsedJSON));
+    }
 
-    getTodo = () => {
+    (getTodo = () => {
         if (localStorage.length > 0){
-            for (let i = 1; i <= localStorage.length; i++) {
-                const todoContainerForGeted = document.createElement('div');
-                mainContainer.appendChild(todoContainerForGeted);
+            Object.keys(localStorage).forEach(function (key){
+                const localStorageValue = JSON.parse(localStorage.getItem(key));
+                const todoItem = document.createElement('div');
+                mainContainer.appendChild(todoItem);
+                todoItem.id = key;
+                let checkbox = document.createElement('input');
+                checkbox.setAttribute('type', 'checkbox');
+                checkbox.checked = localStorageValue.checked;
 
-                let getedTodo = document.createElement('span');
-                getedTodo.innerHTML = localStorage.getItem(i);
-                todoContainerForGeted.appendChild(getedTodo);
-                getedTodo.id = i;
-                todoContainerForGeted.id = i;
+                todoItem.appendChild(checkbox);
+
+                let todoValue = document.createElement('span');
+                todoValue.innerHTML = localStorageValue.value;
+                todoItem.appendChild(todoValue);
+
                 let deleteTodo = document.createElement('button');
-                todoContainerForGeted.appendChild(deleteTodo);
+                todoItem.appendChild(deleteTodo);
                 deleteTodo.innerHTML = 'Delete';
                 deleteTodo.name = 'buttonDelete';
-            }
+            })
         }
-    }
+    })();
 
-    getTodo();
     mainContainer.addEventListener("click", ({target}) =>{
         if (target.name === 'buttonDelete'){
             console.log('Done');
@@ -72,5 +98,11 @@ const renderAll = () => {
             localStorage.removeItem(target.parentNode.id);
         }
     })
-}
-renderAll();
+
+    mainContainer.addEventListener("change", ({target}) =>{
+        if (target.type === 'checkbox'){
+            changeCheckboxValue(target.parentNode.id);
+        }
+    })
+
+})();
