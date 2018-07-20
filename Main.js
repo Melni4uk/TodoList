@@ -36,7 +36,6 @@
         todoKey += 1;
         todoContainer.appendChild(checkbox);
         checkbox.id = todoKey;
-
         todoObj.value = text;
         todoObj.id = todoKey;
         todoObj.checked = false;
