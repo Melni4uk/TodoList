@@ -1,7 +1,6 @@
 (renderAll = () => {
 
     let header = document.createElement('div');
-    let deleteTodoButon = document.createElement('button');
 
     let todoObj = {};
 
@@ -48,11 +47,21 @@
         todoContainer.id = todoKey;
         localStorage.setItem(todoKey, JSON.stringify(todoObj));
         toDo.id = todoKey;
+
         let deleteTodoButon = document.createElement('button');
         todoContainer.appendChild(deleteTodoButon);
         deleteTodoButon.innerHTML = 'Delete';
         deleteTodoButon.name = 'buttonDelete';
-        return todoContainer;
+
+        let editTodoButton = document.createElement('button');
+        todoContainer.appendChild(editTodoButton);
+        editTodoButton.innerHTML = 'Edit todo';
+        editTodoButton.name = 'buttonEdit';
+
+        let saveEdiedTodo = document.createElement('button');
+        todoContainer.appendChild(saveEdiedTodo);
+        saveEdiedTodo.innerHTML = 'Save changes';
+        saveEdiedTodo.name = 'buttonSave';
     }
 
     let changeCheckboxValue = (id) => {
@@ -87,6 +96,11 @@
                 todoItem.appendChild(deleteTodo);
                 deleteTodo.innerHTML = 'Delete';
                 deleteTodo.name = 'buttonDelete';
+
+                let editTodoButton = document.createElement('button');
+                todoItem.appendChild(editTodoButton);
+                editTodoButton.innerHTML = 'Edit todo';
+                editTodoButton.name = 'buttonEdit';
             })
         }
     })();
@@ -102,6 +116,34 @@
     mainContainer.addEventListener("change", ({target}) =>{
         if (target.type === 'checkbox'){
             changeCheckboxValue(target.parentNode.id);
+        }
+    })
+
+    mainContainer.addEventListener("click", ({target}) =>{
+        if (target.innerHTML === 'Edit todo'){
+            /*mainContainer.removeChild(target.parent);*/
+            let editTodoInput = document.createElement('input');
+            editTodoInput.placeholder = 'Input todo';
+
+
+            let editingTodoValue = target.parentNode.firstChild.nextSibling.innerHTML;
+
+            editTodoInput.value = editingTodoValue;
+            target.parentNode.removeChild(target.parentNode.firstChild.nextSibling);
+            target.parentNode.insertBefore(editTodoInput, target.parentNode.firstChild.nextSibling);
+            target.innerHTML = 'Save changes';
+
+            let editedTodo = document.createElement('span');
+            editedTodo.innerHTML = editTodoInput.value;
+            if (target.parentNode.lastChild.innerHTML === 'Save changes'){
+                target.parentNode.lastChild.addEventListener("click", ()=>{
+                    console.log('event');
+                    editedTodo.innerHTML = editTodoInput.value;
+                    target.parentNode.removeChild(target.parentNode.firstChild.nextSibling);
+                    target.parentNode.insertBefore(editedTodo, target.parentNode.firstChild.nextSibling);
+                })
+
+            }
         }
     })
 
