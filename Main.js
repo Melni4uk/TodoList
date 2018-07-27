@@ -48,7 +48,7 @@
     let showTodoItem = (parsedTodo) =>{
 
         let todoContainer = document.createElement('div');
-        mainTodoContainer.appendChild(todoContainer);
+        mainContainer.lastChild.insertBefore(todoContainer, mainContainer.lastChild.firstChild);
         todoContainer.id = parsedTodo.id;
         todoContainer.className = 'todoContainer';
 
@@ -81,24 +81,41 @@
     }
 
     let createNewTodoItem = (value) => {
-
         let key = uuid();
+
+        if (localStorage.getItem('keys') === null){
+            let keys = [key];
+            localStorage.setItem('keys', JSON.stringify(keys));
+        }else {
+            keys =  JSON.parse(localStorage.getItem('keys'));
+            keys[keys.length] = key;
+            localStorage.setItem('keys', JSON.stringify(keys));
+    }
 
         let parsedTodo = {
             'value' : value,
             'checked' : false,
             'id' : key
         }
+
+
         localStorage.setItem(key, JSON.stringify(parsedTodo));
         showTodoItem(parsedTodo);
     }
 
     (getTodosFromLS = () =>{
+        if (localStorage.length > 0){
+            let getedKeys = JSON.parse(localStorage.getItem('keys'));
 
-        Object.keys(localStorage).forEach(function (key){
-          let parsedItem =  JSON.parse(localStorage.getItem(key));
-          showTodoItem(parsedItem);
-        })
+            /* Object.keys(getedKeys).forEach(function (key){
+               let parsedItem =  JSON.parse(localStorage.getItem(key));
+               showTodoItem(parsedItem);
+             })*/
+            for (let i = 0; i <getedKeys.length; i++ ){
+                let parsedItem =  JSON.parse(localStorage.getItem(getedKeys[i]));
+                showTodoItem(parsedItem);
+            }}
+
     })()
 
     let changeCheckboxValue = (key) => {
@@ -116,9 +133,29 @@
     mainTodoContainer.addEventListener("click", ({target}) =>{
 
         if (target.name === 'buttonDelete'){
+
             console.log('Done');
             mainTodoContainer.removeChild(target.parentNode);
             localStorage.removeItem(target.parentNode.id);
+            /*removeValue(JSON.parse(localStorage.getItem('keys'), target.parentNode.id));*/
+
+            (removeValue = ( keys = JSON.parse(localStorage.getItem('keys'))) => {
+                let value = target.parentNode.id;
+                for(let i = 0; i <= keys.length; i++) {
+                    if(keys[i] === value) {
+                        keys.splice(i, 1);
+                        localStorage.setItem('keys', JSON.stringify(keys));
+                        break;
+                    }
+                }
+
+                console.log(keys.length);
+            })();
+
+            if (localStorage.length === 1){
+                localStorage.removeItem('keys');
+            }
+
         }
     })
 
@@ -167,3 +204,5 @@
         }
     })
 })()
+
+
